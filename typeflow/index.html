@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0f1115" />
+<title>TypeFlow — Master Your Typing</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="css/themes.css" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.svg" />
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <span class="logo">⌨️</span>
+    <span class="brand-name">TypeFlow</span>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" data-view="practice">⌨️ Practice</button>
+    <button class="nav-btn" data-view="learn">🎓 Learn</button>
+    <button class="nav-btn" data-view="stats">📊 Stats</button>
+    <button class="nav-btn" data-view="leaderboard">🏆 Leaderboard</button>
+    <button class="nav-btn" data-view="texts">📚 Texts</button>
+    <button class="nav-btn" data-view="settings">⚙️ Settings</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="streak-badge" id="streakBadge">🔥 <span id="streakCount">0</span> day streak</div>
+    <div class="user-level" id="userLevel">Lv. 1 · 0 XP</div>
+    <div class="theme-cycle" id="themeCycle" title="Cycle theme">🎨 <span id="themeName">Midnight</span></div>
+    <button class="install-btn hidden" id="installBtn">⬇ Install app</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- ============ PRACTICE ============ -->
+  <section class="view active" id="view-practice">
+    <header class="view-header">
+      <div class="mode-bar">
+        <button class="mode-btn active" data-mode="time">⏱️ time</button>
+        <button class="mode-btn" data-mode="words">📝 words</button>
+        <button class="mode-btn" data-mode="quote">💬 quote</button>
+        <button class="mode-btn" data-mode="code">💻 code</button>
+        <button class="mode-btn" data-mode="numbers">🔢 numbers</button>
+        <button class="mode-btn" data-mode="symbols">✦ symbols</button>
+        <button class="mode-btn" data-mode="zen">🧘 zen</button>
+        <button class="mode-btn" data-mode="drill">🎯 drill</button>
+        <button class="mode-btn" data-mode="custom">✏️ custom</button>
+      </div>
+      <div class="sub-bar" id="subBar"></div>
+      <div class="live-stats" id="liveStats">
+        <div class="stat"><span class="stat-val" id="liveWpm">0</span><span class="stat-lbl">wpm</span></div>
+        <div class="stat"><span class="stat-val" id="liveAcc">100</span><span class="stat-lbl">% acc</span></div>
+        <div class="stat"><span class="stat-val" id="liveTime">30</span><span class="stat-lbl">sec</span></div>
+        <div class="stat"><span class="stat-val" id="liveProgress">0/0</span><span class="stat-lbl">progress</span></div>
+      </div>
+    </header>
+
+    <div class="typing-wrap">
+      <div class="typing-panel" id="typingPanel" tabindex="0">
+        <div class="typing-text" id="typingText"></div>
+        <div class="restart-hint" id="restartHint">Click here or press <kbd>Tab</kbd>+<kbd>Enter</kbd> to restart</div>
+      </div>
+    </div>
+
+    <div class="keyboard-wrap" id="keyboardWrap">
+      <div class="virtual-keyboard" id="virtualKeyboard"></div>
+    </div>
+
+    <div class="modal hidden" id="resultModal">
+      <div class="modal-card">
+        <h2>Results</h2>
+        <div class="result-grid">
+          <div class="result-stat"><div class="rs-val" id="resWpm">0</div><div class="rs-lbl">wpm</div></div>
+          <div class="result-stat"><div class="rs-val" id="resRaw">0</div><div class="rs-lbl">raw</div></div>
+          <div class="result-stat"><div class="rs-val" id="resAcc">0%</div><div class="rs-lbl">accuracy</div></div>
+          <div class="result-stat"><div class="rs-val" id="resCons">0%</div><div class="rs-lbl">consistency</div></div>
+          <div class="result-stat"><div class="rs-val" id="resErr">0</div><div class="rs-lbl">errors</div></div>
+          <div class="result-stat"><div class="rs-val" id="resTime">0s</div><div class="rs-lbl">time</div></div>
+        </div>
+        <canvas id="resultChart" width="600" height="160"></canvas>
+        <div id="smartSuggest" class="smart-suggest hidden"></div>
+        <div class="modal-actions">
+          <button class="btn primary" id="resRestart">↻ Try again</button>
+          <button class="btn" id="resClose">Close</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEARN ============ -->
+  <section class="view" id="view-learn">
+    <header class="view-header">
+      <h1>Learning Path</h1>
+      <p id="learnRecommend" class="muted"></p>
+    </header>
+    <div class="lesson-grid" id="lessonGrid"></div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="view" id="view-stats">
+    <header class="view-header"><h1>Statistics</h1></header>
+    <div class="stats-grid">
+      <div class="card"><h3>WPM Progress</h3><canvas id="progressChart" width="600" height="220"></canvas></div>
+      <div class="card"><h3>Accuracy Trend</h3><canvas id="accChart" width="600" height="220"></canvas></div>
+      <div class="card span-2"><h3>Error Heatmap</h3><div class="heatmap-keyboard" id="heatmapKeyboard"></div><p class="muted small">Red = problem keys</p></div>
+      <div class="card"><h3>Personal Bests</h3><ul class="pb-list" id="pbList"></ul></div>
+      <div class="card"><h3>Slowest Bigrams</h3><ul class="bigram-list" id="bigramList"></ul></div>
+      <div class="card span-2"><h3>Session History</h3>
+        <table class="history-table" id="historyTable">
+          <thead><tr><th>Date</th><th>Mode</th><th>WPM</th><th>Acc</th><th>Duration</th><th>Errors</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEADERBOARD ============ -->
+  <section class="view" id="view-leaderboard">
+    <header class="view-header"><h1>Leaderboard</h1><p class="muted">Your local personal records.</p></header>
+    <div class="leaderboard-tabs">
+      <button class="tab-btn active" data-tab="alltime">All-time</button>
+      <button class="tab-btn" data-tab="weekly">This Week</button>
+    </div>
+    <div class="leaderboard-list" id="leaderboardList"></div>
+  </section>
+
+  <!-- ============ TEXTS ============ -->
+  <section class="view" id="view-texts">
+    <header class="view-header"><h1>Text Library</h1><p class="muted">Browse, filter, and favorite practice texts.</p></header>
+    <div class="filter-bar" id="filterBar"></div>
+    <div class="text-list" id="textList"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="view" id="view-settings">
+    <header class="view-header"><h1>Settings</h1></header>
+    <div class="settings-grid">
+
+      <div class="card">
+        <h3>Theme</h3>
+        <div class="theme-grid" id="themeGrid"></div>
+        <label class="row">Accent color
+          <input type="color" id="setAccent" value="#ffd166">
+        </label>
+        <button class="btn" id="openCustomTheme">🎨 Custom theme builder</button>
+      </div>
+
+      <div class="card">
+        <h3>Typography</h3>
+        <label class="row">Font
+          <select id="setFont">
+            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+            <option value="'Fira Code', monospace">Fira Code</option>
+            <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
+            <option value="'Source Code Pro', monospace">Source Code Pro</option>
+            <option value="'Roboto Mono', monospace">Roboto Mono</option>
+          </select>
+        </label>
+        <label class="row">Size <input type="range" id="setFontSize" min="14" max="36" value="24"><span id="fontSizeVal">24px</span></label>
+        <label class="row">Weight
+          <select id="setFontWeight">
+            <option value="400">Regular</option>
+            <option value="500">Medium</option>
+            <option value="700">Bold</option>
+          </select>
+        </label>
+        <label class="row">Letter spacing <input type="range" id="setLetterSpacing" min="0" max="30" value="5"></label>
+        <label class="row">Line height <input type="range" id="setLineHeight" min="14" max="22" value="17"></label>
+      </div>
+
+      <div class="card">
+        <h3>Caret & Layout</h3>
+        <label class="row">Caret style
+          <select id="setCaret">
+            <option value="line">Line</option>
+            <option value="block">Block</option>
+            <option value="underline">Underline</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <label class="row">Blink <input type="checkbox" id="setBlink" checked></label>
+        <label class="row">Smooth caret <input type="checkbox" id="setSmoothCaret" checked></label>
+        <label class="row">Typing area width <input type="range" id="setMaxWidth" min="600" max="1200" value="900"></label>
+        <label class="row">Text align
+          <select id="setAlign"><option value="left">Left</option><option value="center">Center</option></select>
+        </label>
+        <label class="row">Spacing
+          <select id="setSpacing"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select>
+        </label>
+      </div>
+
+      <div class="card">
+        <h3>Behavior & Effects</h3>
+        <label class="row">Sound <input type="checkbox" id="setSound"></label>
+        <label class="row">Show keyboard <input type="checkbox" id="setKeyboard" checked></label>
+        <label class="row">Show live stats <input type="checkbox" id="setLiveStats" checked></label>
+        <label class="row">Blind mode <input type="checkbox" id="setBlind"></label>
+        <label class="row">Stop on error <input type="checkbox" id="setStopOnErr"></label>
+        <label class="row">Key ripple <input type="checkbox" id="setRipple" checked></label>
+        <label class="row">Error shake <input type="checkbox" id="setShake" checked></label>
+        <label class="row">Confetti on PB <input type="checkbox" id="setConfetti" checked></label>
+        <label class="row">Focus mode <input type="checkbox" id="setFocus"></label>
+      </div>
+
+      <div class="card">
+        <h3>Smart / Adaptive</h3>
+        <label class="row">Adaptive word weighting <input type="checkbox" id="setAdaptive" checked></label>
+        <label class="row">Progressive difficulty <input type="checkbox" id="setProgressive"></label>
+        <label class="row">Spaced repetition <input type="checkbox" id="setSpacedRep" checked></label>
+        <label class="row">Smart suggestions <input type="checkbox" id="setSmartSuggest" checked></label>
+      </div>
+
+      <div class="card">
+        <h3>Data</h3>
+        <button class="btn" id="exportBtn">⬇ Export stats</button>
+        <button class="btn" id="exportThemeBtn">⬇ Export theme</button>
+        <button class="btn" id="importThemeBtn">⬆ Import theme</button>
+        <input type="file" id="importThemeFile" accept="application/json" style="display:none">
+        <button class="btn danger" id="resetBtn">🗑 Reset all data</button>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- Custom theme modal -->
+<div class="modal hidden" id="customThemeModal">
+  <div class="modal-card">
+    <h2>Custom Theme Builder</h2>
+    <div class="custom-theme-grid" id="customThemeGrid"></div>
+    <label class="row">Theme name <input type="text" id="customThemeName" placeholder="My Theme" /></label>
+    <div class="modal-actions">
+      <button class="btn primary" id="saveCustomTheme">Save</button>
+      <button class="btn" id="closeCustomTheme">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script src="js/storage.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/keyboard.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/content.js"></script>
+<script src="js/adaptive.js"></script>
+<script src="js/app.js"></script>
+<script src="js/pwa.js"></script>
+</body>
+</html>
